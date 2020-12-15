@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Threading;
 
-namespace dotnet_concurrency
+namespace dotnet_concurrency.lesson1
 {
-    class WordCount4Corrected
-	{
+    class WordCounter_1_Erroneous
+    {
 		private static List<string> wordList;
 		private static List<string> curseWords;
 		private static int currentWordIndex;
@@ -32,39 +32,28 @@ namespace dotnet_concurrency
 			threadD.Join();
 		}
 
-		private static readonly object wordCountCalculatorSyncObj = new object();
-
 		private static void ThreadDoWork()
 		{
 			bool atLeastOneWordRemaining;
-			int thisWordIndex;
-			lock (wordCountCalculatorSyncObj)
-			{
-				thisWordIndex = currentWordIndex;
-				currentWordIndex = currentWordIndex + 1;
-			}
+			int thisWordIndex = currentWordIndex;
+			currentWordIndex = currentWordIndex + 1;
 			if (thisWordIndex >= wordList.Count) atLeastOneWordRemaining = false;
 			else atLeastOneWordRemaining = true;
 
 			while (atLeastOneWordRemaining)
 			{
 				string thisWord = wordList[thisWordIndex];
+				bool firstOccurrenceOfWord = !wordCountDict.ContainsKey(thisWord);
 
 				if (curseWords.Contains(thisWord)) Console.WriteLine("Curse word detected!");
+				if (firstOccurrenceOfWord) wordCountDict.Add(thisWord, 1);
+				else wordCountDict[thisWord] = wordCountDict[thisWord] + 1;
 
-				lock (wordCountCalculatorSyncObj)
-				{
-					bool firstOccurrenceOfWord = !wordCountDict.ContainsKey(thisWord);
-
-					if (firstOccurrenceOfWord) wordCountDict.Add(thisWord, 1);
-					else wordCountDict[thisWord] = wordCountDict[thisWord] + 1;
-					thisWordIndex = currentWordIndex;
-					currentWordIndex = currentWordIndex + 1;
-				}
+				thisWordIndex = currentWordIndex;
+				currentWordIndex = currentWordIndex + 1;
 				if (thisWordIndex >= wordList.Count) atLeastOneWordRemaining = false;
 			}
 		}
-
 		static void Main(string[] args)
         {
 			CalculateWordCounts();

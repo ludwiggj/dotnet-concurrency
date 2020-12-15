@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Threading;
 
-namespace dotnet_concurrency
+namespace dotnet_concurrency.lesson1
 {
-    class WordCount3TooPermissive
+    class WordCounter_3_ErroneousLockingGranularity
 	{
 		private static List<string> wordList;
 		private static List<string> curseWords;

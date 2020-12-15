@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace dotnet_concurrency
+namespace dotnet_concurrency.lesson1
 {
-	class Reactor
+	class NuclearReactor_InsufficientGranularity
 	{
 		public static class ReactorEventDispatcher
 		{

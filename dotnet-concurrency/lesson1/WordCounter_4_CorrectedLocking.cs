@@ -2,16 +2,14 @@
 using System.Collections.Generic;
 using System.Threading;
 
-namespace dotnet_concurrency
+namespace dotnet_concurrency.lesson1
 {
-    class WordCount2TooRestrictive
-    {
+    class WordCounter_4_CorrectedLocking
+	{
 		private static List<string> wordList;
 		private static List<string> curseWords;
 		private static int currentWordIndex;
 		private static Dictionary<string, int> wordCountDict;
-
-		private static readonly object wordCountCalculatorSyncObj = new object();
 
 		public static void CalculateWordCounts()
 		{
@@ -34,31 +32,39 @@ namespace dotnet_concurrency
 			threadD.Join();
 		}
 
+		private static readonly object wordCountCalculatorSyncObj = new object();
+
 		private static void ThreadDoWork()
 		{
+			bool atLeastOneWordRemaining;
+			int thisWordIndex;
 			lock (wordCountCalculatorSyncObj)
 			{
-				bool atLeastOneWordRemaining;
-				int thisWordIndex = currentWordIndex;
+				thisWordIndex = currentWordIndex;
 				currentWordIndex = currentWordIndex + 1;
-				if (thisWordIndex >= wordList.Count) atLeastOneWordRemaining = false;
-				else atLeastOneWordRemaining = true;
+			}
+			if (thisWordIndex >= wordList.Count) atLeastOneWordRemaining = false;
+			else atLeastOneWordRemaining = true;
 
-				while (atLeastOneWordRemaining)
+			while (atLeastOneWordRemaining)
+			{
+				string thisWord = wordList[thisWordIndex];
+
+				if (curseWords.Contains(thisWord)) Console.WriteLine("Curse word detected!");
+
+				lock (wordCountCalculatorSyncObj)
 				{
-					string thisWord = wordList[thisWordIndex];
 					bool firstOccurrenceOfWord = !wordCountDict.ContainsKey(thisWord);
 
-					if (curseWords.Contains(thisWord)) Console.WriteLine("Curse word detected!");
 					if (firstOccurrenceOfWord) wordCountDict.Add(thisWord, 1);
 					else wordCountDict[thisWord] = wordCountDict[thisWord] + 1;
-
 					thisWordIndex = currentWordIndex;
 					currentWordIndex = currentWordIndex + 1;
-					if (thisWordIndex >= wordList.Count) atLeastOneWordRemaining = false;
 				}
+				if (thisWordIndex >= wordList.Count) atLeastOneWordRemaining = false;
 			}
 		}
+
 		static void Main(string[] args)
         {
 			CalculateWordCounts();
