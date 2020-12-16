@@ -4,7 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>dotnet_concurrency</RootNamespace>
-    <StartupObject>dotnet_concurrency.lesson2.CountAsync</StartupObject>
+    <StartupObject>dotnet_concurrency.skeet.TestWithProperty</StartupObject>
   </PropertyGroup>
 
 </Project>

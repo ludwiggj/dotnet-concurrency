@@ -7,11 +7,11 @@ using System.Linq;
 
 namespace dotnet_concurrency.lesson2
 {
-    class CountAsync
+    class CountAsync2
     {
 		private static int counter;
-		private static int COUNTER_MIN_TARGET = -15;
-		private static int COUNTER_MAX_TARGET = 15;
+		private static int COUNTER_MIN_TARGET = -10;
+		private static int COUNTER_MAX_TARGET = 10;
 		private static Random rnd = new Random();
 		private static readonly object lockObj = new object();
 
@@ -35,23 +35,26 @@ namespace dotnet_concurrency.lesson2
 		{
 			while (true)
 			{
-				lock (lockObj)
+				if ((counter > COUNTER_MIN_TARGET) && (counter < COUNTER_MAX_TARGET))
 				{
-					if ((counter > COUNTER_MIN_TARGET) && (counter < COUNTER_MAX_TARGET))
+					if (rnd.Next(0, 2) == 0)
 					{
-						if (rnd.Next(0, 2) == 0)
+						lock (lockObj)
 						{
 							counter++;
 							Console.WriteLine("PLUS!! > count [" + counter + "] threadId [" + Thread.CurrentThread.ManagedThreadId + "]");
 						}
-						else
+					}
+					else
+					{
+						lock (lockObj)
 						{
 							counter--;
 							Console.WriteLine("MINUS! > count [" + counter + "] threadId [" + Thread.CurrentThread.ManagedThreadId + "]");
 						}
 					}
-					else break;
 				}
+				else break;
 				await Task.Delay(rnd.Next(50, 500));
 			}
 		}
@@ -60,14 +63,11 @@ namespace dotnet_concurrency.lesson2
 		{
 			while (true)
 			{
-				lock (lockObj)
+				if ((counter > COUNTER_MIN_TARGET) && (counter < COUNTER_MAX_TARGET))
 				{
-					if ((counter > COUNTER_MIN_TARGET) && (counter < COUNTER_MAX_TARGET))
-					{
-						Console.WriteLine("READER > count [" + counter + "] threadId [" + Thread.CurrentThread.ManagedThreadId + "]");
-					}
-					else break;
+					Console.WriteLine("READER > count [" + counter + "] threadId [" + Thread.CurrentThread.ManagedThreadId + "]");
 				}
+				else break;
 				await Task.Delay(1500);
 			}
 		}
